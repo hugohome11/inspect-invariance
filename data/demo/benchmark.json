@@ -1,0 +1,117 @@
+{
+  "name": "demo-reasoning",
+  "reference_language": "en",
+  "languages": ["en", "hr", "de"],
+  "note": "A small synthetic set, for exercising the pipeline end to end rather than for measuring anything. Item q007 carries a DELIBERATELY DEGRADED Croatian translation as a positive control: the English asks what must be true, the Croatian asks what can be true, which is a different question. A working detector should flag q007 for Croatian and leave the rest alone. Keeping a known-positive control in the set is how you tell a silent detector from a clean benchmark.",
+  "items": [
+    {
+      "id": "q001",
+      "target": "B",
+      "translations": {
+        "en": {"question": "All roses are flowers. Some flowers fade quickly. Which statement must be true?", "choices": ["All roses fade quickly", "Some roses may fade quickly", "No rose fades quickly", "Every flower is a rose"]},
+        "hr": {"question": "Sve ruže su cvijeće. Neko cvijeće brzo vene. Koja tvrdnja mora biti istinita?", "choices": ["Sve ruže brzo venu", "Neke ruže mogu brzo venuti", "Nijedna ruža ne vene brzo", "Svako cvijeće je ruža"]},
+        "de": {"question": "Alle Rosen sind Blumen. Manche Blumen welken schnell. Welche Aussage muss wahr sein?", "choices": ["Alle Rosen welken schnell", "Manche Rosen können schnell welken", "Keine Rose welkt schnell", "Jede Blume ist eine Rose"]}
+      }
+    },
+    {
+      "id": "q002",
+      "target": "C",
+      "translations": {
+        "en": {"question": "What is the next number in the sequence 2, 6, 12, 20, 30?", "choices": ["36", "40", "42", "44"]},
+        "hr": {"question": "Koji je sljedeći broj u nizu 2, 6, 12, 20, 30?", "choices": ["36", "40", "42", "44"]},
+        "de": {"question": "Welche Zahl folgt in der Reihe 2, 6, 12, 20, 30?", "choices": ["36", "40", "42", "44"]}
+      }
+    },
+    {
+      "id": "q003",
+      "target": "A",
+      "translations": {
+        "en": {"question": "A shop raises a price by 20 percent, then lowers the new price by 20 percent. Compared with the original price, the final price is:", "choices": ["Lower", "Higher", "The same", "Impossible to determine"]},
+        "hr": {"question": "Trgovina poveća cijenu za 20 posto, a zatim novu cijenu snizi za 20 posto. U usporedbi s početnom cijenom, konačna cijena je:", "choices": ["Niža", "Viša", "Jednaka", "Nemoguće je odrediti"]},
+        "de": {"question": "Ein Geschäft erhöht einen Preis um 20 Prozent und senkt den neuen Preis dann um 20 Prozent. Verglichen mit dem ursprünglichen Preis ist der Endpreis:", "choices": ["Niedriger", "Höher", "Gleich", "Nicht bestimmbar"]}
+      }
+    },
+    {
+      "id": "q004",
+      "target": "D",
+      "translations": {
+        "en": {"question": "Which word does not belong with the others?", "choices": ["Copper", "Iron", "Tin", "Granite"]},
+        "hr": {"question": "Koja riječ ne pripada ostalima?", "choices": ["Bakar", "Željezo", "Kositar", "Granit"]},
+        "de": {"question": "Welches Wort gehört nicht zu den anderen?", "choices": ["Kupfer", "Eisen", "Zinn", "Granit"]}
+      }
+    },
+    {
+      "id": "q005",
+      "target": "B",
+      "translations": {
+        "en": {"question": "If it rained, the ground is wet. The ground is wet. What follows?", "choices": ["It rained", "It may or may not have rained", "It did not rain", "The ground is dry"]},
+        "hr": {"question": "Ako je padala kiša, tlo je mokro. Tlo je mokro. Što slijedi?", "choices": ["Padala je kiša", "Kiša je možda padala, a možda i nije", "Kiša nije padala", "Tlo je suho"]},
+        "de": {"question": "Wenn es geregnet hat, ist der Boden nass. Der Boden ist nass. Was folgt daraus?", "choices": ["Es hat geregnet", "Es kann geregnet haben oder auch nicht", "Es hat nicht geregnet", "Der Boden ist trocken"]}
+      }
+    },
+    {
+      "id": "q006",
+      "target": "C",
+      "translations": {
+        "en": {"question": "Four machines make four widgets in four minutes. How long do eight machines take to make eight widgets?", "choices": ["Two minutes", "Eight minutes", "Four minutes", "Sixteen minutes"]},
+        "hr": {"question": "Četiri stroja izrade četiri proizvoda za četiri minute. Koliko je vremena potrebno da osam strojeva izradi osam proizvoda?", "choices": ["Dvije minute", "Osam minuta", "Četiri minute", "Šesnaest minuta"]},
+        "de": {"question": "Vier Maschinen stellen vier Teile in vier Minuten her. Wie lange brauchen acht Maschinen für acht Teile?", "choices": ["Zwei Minuten", "Acht Minuten", "Vier Minuten", "Sechzehn Minuten"]}
+      }
+    },
+    {
+      "id": "q007",
+      "target": "A",
+      "positive_control": "The Croatian stem asks what CAN be true rather than what MUST be true, which changes the correct answer. Deliberate. Do not repair without also updating the README, which uses this item to show the detector working.",
+      "translations": {
+        "en": {"question": "Some students passed. Everyone who passed studied. Which statement must be true?", "choices": ["Some students studied", "All students studied", "No student studied", "Everyone who studied passed"]},
+        "hr": {"question": "Neki studenti su položili. Svi koji su položili su učili. Koja tvrdnja može biti istinita?", "choices": ["Neki studenti su učili", "Svi studenti su učili", "Nijedan student nije učio", "Svi koji su učili su položili"]},
+        "de": {"question": "Manche Studenten haben bestanden. Alle, die bestanden haben, haben gelernt. Welche Aussage muss wahr sein?", "choices": ["Manche Studenten haben gelernt", "Alle Studenten haben gelernt", "Kein Student hat gelernt", "Alle, die gelernt haben, haben bestanden"]}
+      }
+    },
+    {
+      "id": "q008",
+      "target": "B",
+      "translations": {
+        "en": {"question": "A train leaves at 14:45 and arrives at 17:20. How long is the journey?", "choices": ["2 hours 45 minutes", "2 hours 35 minutes", "3 hours 25 minutes", "2 hours 25 minutes"]},
+        "hr": {"question": "Vlak polazi u 14:45, a stiže u 17:20. Koliko traje putovanje?", "choices": ["2 sata i 45 minuta", "2 sata i 35 minuta", "3 sata i 25 minuta", "2 sata i 25 minuta"]},
+        "de": {"question": "Ein Zug fährt um 14:45 ab und kommt um 17:20 an. Wie lange dauert die Fahrt?", "choices": ["2 Stunden 45 Minuten", "2 Stunden 35 Minuten", "3 Stunden 25 Minuten", "2 Stunden 25 Minuten"]}
+      }
+    },
+    {
+      "id": "q009",
+      "target": "D",
+      "translations": {
+        "en": {"question": "Which number is both a square and a cube?", "choices": ["16", "27", "36", "64"]},
+        "hr": {"question": "Koji je broj istodobno i kvadrat i kub?", "choices": ["16", "27", "36", "64"]},
+        "de": {"question": "Welche Zahl ist zugleich eine Quadratzahl und eine Kubikzahl?", "choices": ["16", "27", "36", "64"]}
+      }
+    },
+    {
+      "id": "q010",
+      "target": "A",
+      "translations": {
+        "en": {"question": "In a group of 30 people, 18 speak French and 15 speak German. Everyone speaks at least one. How many speak both?", "choices": ["3", "5", "12", "0"]},
+        "hr": {"question": "U skupini od 30 osoba, njih 18 govori francuski, a 15 njemački. Svatko govori barem jedan jezik. Koliko ih govori oba?", "choices": ["3", "5", "12", "0"]},
+        "de": {"question": "In einer Gruppe von 30 Personen sprechen 18 Französisch und 15 Deutsch. Jede Person spricht mindestens eine Sprache. Wie viele sprechen beide?", "choices": ["3", "5", "12", "0"]}
+      }
+    },
+    {
+      "id": "q011",
+      "target": "C",
+      "translations": {
+        "en": {"question": "If no mammals are birds, and all whales are mammals, which follows?", "choices": ["Some whales are birds", "All birds are whales", "No whale is a bird", "Some birds are mammals"]},
+        "hr": {"question": "Ako nijedan sisavac nije ptica, a svi kitovi su sisavci, što slijedi?", "choices": ["Neki kitovi su ptice", "Sve ptice su kitovi", "Nijedan kit nije ptica", "Neke ptice su sisavci"]},
+        "de": {"question": "Wenn kein Säugetier ein Vogel ist und alle Wale Säugetiere sind, was folgt daraus?", "choices": ["Manche Wale sind Vögel", "Alle Vögel sind Wale", "Kein Wal ist ein Vogel", "Manche Vögel sind Säugetiere"]}
+      }
+    },
+    {
+      "id": "q012",
+      "target": "B",
+      "translations": {
+        "en": {"question": "A rope is cut into three pieces. The second is twice the first, the third is twice the second. The rope was 70 cm. How long is the first piece?", "choices": ["7 cm", "10 cm", "14 cm", "20 cm"]},
+        "hr": {"question": "Uže je razrezano na tri dijela. Drugi je dvostruko dulji od prvog, a treći dvostruko dulji od drugog. Uže je bilo dugo 70 cm. Koliko je dug prvi dio?", "choices": ["7 cm", "10 cm", "14 cm", "20 cm"]},
+        "de": {"question": "Ein Seil wird in drei Stücke geschnitten. Das zweite ist doppelt so lang wie das erste, das dritte doppelt so lang wie das zweite. Das Seil war 70 cm lang. Wie lang ist das erste Stück?", "choices": ["7 cm", "10 cm", "14 cm", "20 cm"]}
+      }
+    }
+  ]
+}
