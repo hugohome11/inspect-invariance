@@ -6,3 +6,12 @@ dist/
 *.egg-info/
 logs/
 .pytest_cache/
+
+# Credentials. Inspect reads a .env from the working directory, so running an
+# eval here invites one being created. This repository is public and is pinned
+# by an external register, so nothing key-shaped may ever become committable.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
