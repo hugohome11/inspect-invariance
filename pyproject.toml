@@ -23,6 +23,17 @@ dependencies = ["numpy>=1.24", "scipy>=1.10", "inspect_ai>=0.3"]
 [project.optional-dependencies]
 dev = ["pytest>=7"]
 
+# Model provider SDKs. inspect_ai declares these only under its own dev extra, so
+# a plain `uv sync` installs the framework without the client for whichever model
+# you intend to run, and `inspect eval` then fails asking for it. Which one you
+# need depends on the model, so they are extras rather than dependencies: install
+# the one matching your --model.
+openai = ["openai>=3.1.0"]
+anthropic = ["anthropic>=1.0.0"]
+google = ["google-genai>=2.14.0"]
+mistral = ["mistralai>=2.4.5"]
+groq = ["groq>=0.28.0"]
+
 [project.scripts]
 inspect-invariance = "inspect_invariance.cli:main"
 
