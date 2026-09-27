@@ -6,6 +6,33 @@ benchmarks, as an [Inspect](https://inspect.aisi.org.uk/) extension.
 Translating a benchmark does not preserve what it measures. This package tests
 whether it did, and names the items that broke.
 
+## The evidence behind it
+
+This implements the method of a published measurement audit of a real
+multilingual suite: the same 22 models answering the same 3,080 items in eleven
+languages of Africa, from the HELM archive.
+
+> Kankaras, M. (2026). *Ranks without resolution: how much of a multilingual
+> benchmark's language ordering is estimable?*
+> [doi:10.5281/zenodo.22128037](https://doi.org/10.5281/zenodo.22128037)
+
+Three findings from that audit, which are what the tooling here is for:
+
+- On the Winogrande half, **only 18 of the 55 language pairs are distinguishable**
+  at all. Ranks two through eleven are one undifferentiated block, and the rank
+  intervals reach eight places wide. On the medical half, four of ten adjacent
+  gaps in the published ordering separate.
+- **19.4 per cent of the medical and 48.4 per cent of the Winogrande reported
+  scores** have a confidence interval that includes the chance level of the item
+  format. They are published numbers that carry no information about the model.
+- Cross-language differential item functioning affects **14.1 per cent of medical
+  items** after equating scale as well as location, against essentially none in a
+  permutation null.
+
+The deposit behind that DOI reproduces every number in the paper. Note that the
+paper's own estimation is separate code and is not this package; the package
+implements the item-level half of the method for reuse on other benchmarks.
+
 ## The problem
 
 A benchmark is translated into six languages, run against a model, and the model
@@ -117,6 +144,30 @@ in its metadata, which is what links an item to its translations:
 inspect eval src/inspect_invariance/task.py --model openai/gpt-4o --epochs 20
 ```
 
+### On a real multilingual benchmark
+
+`afrimmlu.py` runs AfriMMLU, a parallel translation of a 500-item MMLU subset
+into sixteen African languages plus English and French, pinned to an immutable
+dataset revision. One task covers every language, so a single run produces a log
+the analysis can read directly:
+
+```bash
+inspect eval src/inspect_invariance/afrimmlu.py@afrimmlu --model openai/gpt-5-nano
+inspect-invariance analyse ./logs --reference eng
+```
+
+The default is all eighteen language versions of the 500-item test split, which
+is 9,000 samples. Narrow it for a cheaper run:
+
+```bash
+inspect eval src/inspect_invariance/afrimmlu.py@afrimmlu   -T languages=eng,swa,yor,zul -T split=val --model openai/gpt-5-nano
+```
+
+The item sets are checked for parallelism on load. If a language version's answer
+key, subject or option count departs from the reference, it raises rather than
+proceeding, because the linkage every analysis here depends on would be an
+illusion.
+
 Then analyse the logs:
 
 ```bash
@@ -153,12 +204,41 @@ variable something to match on.
 
 Stated here rather than discovered later.
 
-The invariance half is a screening procedure. It fits by maximum likelihood to
-the tetrachoric correlation matrix, where a full treatment would estimate
-thresholds and loadings jointly by WLSMV with a mean-and-variance-adjusted test
-statistic, as lavaan or Mplus would. That is enough to decide whether a benchmark
-deserves a closer look. It is not enough to be the final word in a report to a
-regulator, and it should not be cited as though it were.
+The invariance half is fitted by **diagonally weighted least squares** with a
+mean-and-variance adjusted test statistic, which is the WLSMV estimator lavaan and
+Mplus use for ordinal indicators. Each residual correlation is weighted by the
+reciprocal of its own sampling variance, computed in closed form from the delta
+method, and the statistic is then corrected using the full sampling covariance so
+that it is distributed as its degrees of freedom claim.
+
+That matters because the previous implementation used a normal-theory
+maximum-likelihood fit, which treats a tetrachoric correlation matrix as though it
+were a sample covariance matrix. It is not one, and the resulting statistic ran
+four- to sevenfold inflated and rejected correctly specified models across the
+whole range of item counts and sample sizes a real benchmark occupies. Measured on
+data simulated from exactly the fitted model, with no differential functioning
+anywhere, the current estimator rejects a correct model on **0 of 30 replications
+at 100, 200, 400 and 800 respondents**, and still detects a real loading
+difference on 26 of 30 at 200 and 30 of 30 at 400. The history is in
+`register-submission/findings-invariance-defect.md`.
+
+Two limits on it, both stated in the code. Metric invariance is decided by the
+scaled difference test rather than by a change in CFI or RMSEA: those cutoffs
+assume nested models share their degrees of freedom, which a mean-and-variance
+adjusted statistic does not, and on correct models the delta-RMSEA rule rejected 8
+of 30 where the difference test rejected 0. And the corrected statistic needs the
+joint covariance of every residual correlation, which caps the problem size at 60
+items and 4,000 stacked language-by-correlation residuals. About 20 items across
+18 languages fits, as does 60 items across 2. Above that it refuses and says so,
+which means invariance should be tested within a subscale or a subject rather than
+across a whole item bank. That is the right unit anyway: a single common factor
+over hundreds of heterogeneous items is not a model worth fitting.
+
+**The item-level DIF half is unaffected and is the part to act on.** It controls
+false discovery across items by Benjamini-Hochberg, refuses to report an effect
+size where the logistic fit separates completely or has too few events per
+parameter, and distinguishes "no differential functioning found" from "nothing
+was testable".
 
 The sequence stops at metric invariance. Scalar invariance, which is what
 licenses comparing means, requires equal item intercepts, and for binary items

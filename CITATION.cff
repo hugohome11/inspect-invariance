@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software and the paper it implements."
+title: inspect-invariance
+abstract: >-
+  Measurement invariance and differential item functioning testing for
+  multilingual LLM benchmarks, as an Inspect extension. Provides a linked
+  multilingual evaluation task and the item-level analysis that tests whether
+  the language versions of a benchmark measure the same thing.
+type: software
+authors:
+  - family-names: Kankaras
+    given-names: Milos
+    orcid: "https://orcid.org/0000-0002-3190-7751"
+    affiliation: "Center for Psychology, Podgorica, Montenegro"
+license: MIT
+repository-code: "https://github.com/hugohome11/inspect-invariance"
+keywords:
+  - measurement invariance
+  - differential item functioning
+  - benchmark validity
+  - multilingual evaluation
+  - large language models
+references:
+  - type: article
+    title: >-
+      Ranks without resolution: how much of a multilingual benchmark's language
+      ordering is estimable?
+    authors:
+      - family-names: Kankaras
+        given-names: Milos
+        orcid: "https://orcid.org/0000-0002-3190-7751"
+    year: 2026
+    doi: 10.5281/zenodo.22128037
+    url: "https://doi.org/10.5281/zenodo.22128037"
+preferred-citation:
+  type: article
+  title: >-
+    Ranks without resolution: how much of a multilingual benchmark's language
+    ordering is estimable?
+  authors:
+    - family-names: Kankaras
+      given-names: Milos
+      orcid: "https://orcid.org/0000-0002-3190-7751"
+  year: 2026
+  doi: 10.5281/zenodo.22128037
+  url: "https://doi.org/10.5281/zenodo.22128037"

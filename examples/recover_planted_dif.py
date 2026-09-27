@@ -109,14 +109,18 @@ def main() -> None:
             "en": as_matrix(probit(equal, 1), "en"),
             "hr": as_matrix(probit(focal_loadings, 2), "hr"),
         })
-        print(f"   {label:<20} dCFI {result.delta_cfi:+.4f}  "
-              f"metric holds: {result.metric_holds}")
+        print(f"   {label:<20} scaled diff p={result.p_diff:.4f}  "
+              f"dCFI {result.delta_cfi:+.4f}  metric holds: {result.metric_holds}")
     print("   expected: holds for equal loadings, fails when three items are broken")
 
-    print("\nNote on the chi-square. It is significant in every case above, because")
-    print("with 1,600 observations it is significant for any trivial misfit. That is")
-    print("exactly why invariance is judged on the CHANGE in CFI and RMSEA rather")
-    print("than on the test statistic.\n")
+    print("\nNote on how that verdict is reached. Metric invariance is judged on the")
+    print("scaled difference test between the configural and metric models, not on")
+    print("the change in CFI or RMSEA. Those cutoffs assume nested models share")
+    print("their degrees of freedom, which the mean-and-variance adjusted statistic")
+    print("used here does not: it rescales each model separately. On correct models")
+    print("with no differential functioning the delta-RMSEA rule rejected 8 of 30")
+    print("while the difference test rejected 0 of 30. The deltas are still printed")
+    print("because they are informative, but they do not decide.\n")
 
 
 if __name__ == "__main__":

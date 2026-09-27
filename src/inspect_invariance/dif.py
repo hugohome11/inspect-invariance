@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Sequence
 
 import numpy as np
 from scipy import optimize, stats
@@ -36,6 +37,9 @@ __all__ = [
     "ETS_A",
     "ETS_B",
     "ETS_C",
+    "benjamini_hochberg",
+    "classify_mh",
+    "classify_logistic",
 ]
 
 ETS_A = "A"  # negligible
@@ -50,6 +54,20 @@ _ETS_C_CUT = 1.5
 # Jodoin and Gierl (2001) cutoffs for Nagelkerke delta R^2.
 _JG_B_CUT = 0.035
 _JG_C_CUT = 0.070
+
+# A fitted probability this close to 0 or 1 for every observation means the
+# logistic model separates the data completely and its coefficients are not
+# identified. See ``_fit_logistic``.
+_SEPARATION_TOL = 1e-4
+
+# Events per parameter for the four-parameter model M2. The Jodoin and Gierl
+# effect-size cuts were calibrated on samples in the hundreds; below a few
+# events per parameter the increment they classify is dominated by the fit's
+# own instability rather than by any difference between the groups. Three is
+# lenient by the usual standard of ten and is meant only to exclude designs
+# where the quantity is not estimable at all.
+_MIN_EVENTS_PER_PARAM = 3
+_M2_PARAMS = 4
 
 
 @dataclass(frozen=True)
@@ -70,6 +88,12 @@ class MHResult:
     n_focal: int
     strata_used: int
     """Score strata that contributed. Strata with no variance carry no information."""
+    q: float = float("nan")
+    """Benjamini-Hochberg adjusted p across the items of one comparison.
+
+    NaN until :func:`inspect_invariance.report.analyse` applies the correction,
+    because false discovery is a property of the item set, not of one item.
+    """
 
     @property
     def flagged(self) -> bool:
@@ -96,6 +120,8 @@ class LogisticResult:
     """Jodoin and Gierl A (negligible), B (moderate) or C (large)."""
     converged: bool = True
     note: str = ""
+    q: float = float("nan")
+    """Benjamini-Hochberg adjusted ``p_total`` across the items of one comparison."""
 
     @property
     def flagged(self) -> bool:
@@ -281,10 +307,37 @@ def logistic_dif(
     x1 = np.column_stack([ones, scores, g])
     x2 = np.column_stack([ones, scores, g, scores * g])
 
-    ll0, ok0 = _fit_logistic(x0, y)
-    ll1, ok1 = _fit_logistic(x1, y)
-    ll2, ok2 = _fit_logistic(x2, y)
+    ll0, ok0, _ = _fit_logistic(x0, y)
+    ll1, ok1, _ = _fit_logistic(x1, y)
+    ll2, ok2, separated = _fit_logistic(x2, y)
     converged = ok0 and ok1 and ok2
+
+    events = int(min(y.sum(), n - y.sum()))
+    underpowered = events < _MIN_EVENTS_PER_PARAM * _M2_PARAMS
+
+    if separated or underpowered:
+        # Either the full model reproduces the responses exactly, or there are
+        # too few events to identify its four coefficients. In both cases the
+        # likelihood-ratio statistics and the Nagelkerke increment are bounded
+        # by the fit's instability rather than by any group difference, and
+        # would be reported as a near-perfect effect. Nothing about this item's
+        # behaviour across groups is estimable from these data, and saying so
+        # is the whole point of the package.
+        reason = (
+            "complete separation: the model reproduces every response"
+            if separated
+            else f"only {events} events against {_M2_PARAMS} parameters"
+        )
+        return LogisticResult(
+            item=name, chi2_total=float("nan"), p_total=float("nan"),
+            chi2_uniform=float("nan"), p_uniform=float("nan"),
+            chi2_nonuniform=float("nan"), p_nonuniform=float("nan"),
+            delta_r2=float("nan"), classification=ETS_A, converged=False,
+            note=(
+                f"{reason}, so no effect size is estimable. "
+                "Usually means too few respondents."
+            ),
+        )
 
     chi2_total = max(0.0, 2.0 * (ll2 - ll0))
     chi2_uniform = max(0.0, 2.0 * (ll1 - ll0))
@@ -373,13 +426,19 @@ def _jodoin_gierl(delta_r2: float, p_total: float) -> str:
     return ETS_C
 
 
-def _fit_logistic(x: np.ndarray, y: np.ndarray) -> tuple[float, bool]:
+def _fit_logistic(x: np.ndarray, y: np.ndarray) -> tuple[float, bool, bool]:
     """Maximum-likelihood logistic fit, returning the log-likelihood.
 
-    A tiny ridge penalty keeps the fit finite under complete separation, which is
-    common with short forms and small respondent counts. The penalty is small
-    enough not to move the likelihood-ratio tests materially, and its presence is
-    reported rather than hidden.
+    A tiny ridge penalty keeps the fit numerically finite under complete
+    separation, which is common with short forms and small respondent counts.
+    Finite is not the same as estimable: when the data are separable the penalised
+    optimum still drives the linear predictor to the clip, the log-likelihood
+    approaches zero, and any pseudo R-squared computed from it approaches one.
+    That is an artefact of the design, not an effect. So separation is detected
+    and returned alongside the fit rather than being absorbed silently.
+
+    Returns:
+        ``(log_likelihood, converged, separated)``.
     """
     ridge = 1e-6
 
@@ -397,7 +456,14 @@ def _fit_logistic(x: np.ndarray, y: np.ndarray) -> tuple[float, bool]:
     res = optimize.minimize(neg_ll, beta0, jac=grad, method="BFGS")
     eta = np.clip(x @ res.x, -35.0, 35.0)
     ll = float(np.sum(y * eta - np.logaddexp(0.0, eta)))
-    return ll, bool(res.success)
+
+    # Textbook definition: the fitted probabilities reproduce the outcome
+    # exactly, so the maximum likelihood estimate lies on the boundary.
+    p = 1.0 / (1.0 + np.exp(-eta))
+    separated = bool(
+        np.all(np.where(y > 0.5, p > 1.0 - _SEPARATION_TOL, p < _SEPARATION_TOL))
+    )
+    return ll, bool(res.success), separated
 
 
 def _nagelkerke(ll_null: float, ll_full: float, n: int) -> float:
@@ -407,3 +473,42 @@ def _nagelkerke(ll_null: float, ll_full: float, n: int) -> float:
     if denom <= 0.0:
         return 0.0
     return max(0.0, min(1.0, cox_snell / denom))
+
+
+def benjamini_hochberg(p_values: Sequence[float]) -> np.ndarray:
+    """Benjamini-Hochberg adjusted p-values (q-values), NaNs preserved.
+
+    Testing every item of a benchmark for differential functioning is a
+    multiple-comparison problem: at twenty items and a five per cent level,
+    one apparent finding per run is the expected yield of pure noise. The
+    published analysis this package implements controls false discovery this
+    way (Benjamini and Hochberg, 1995), and a per-item p-value read without it
+    will condemn a clean benchmark.
+
+    Non-finite entries (items where nothing was estimable) take no part in the
+    ranking and come back as NaN.
+    """
+    p = np.asarray(list(p_values), dtype=float)
+    q = np.full(p.shape, np.nan)
+    finite = np.isfinite(p)
+    m = int(finite.sum())
+    if m == 0:
+        return q
+
+    idx = np.flatnonzero(finite)
+    order = idx[np.argsort(p[idx], kind="stable")]
+    ranked = p[order] * m / (np.arange(m) + 1)
+    # Enforce monotonicity from the largest adjusted value downwards.
+    ranked = np.minimum.accumulate(ranked[::-1])[::-1]
+    q[order] = np.clip(ranked, 0.0, 1.0)
+    return q
+
+
+def classify_mh(delta: float, p: float) -> str:
+    """ETS classification of an MH delta at a given (adjusted) p."""
+    return _ets_class(delta, p)
+
+
+def classify_logistic(delta_r2: float, p_total: float) -> str:
+    """Jodoin and Gierl classification at a given (adjusted) p."""
+    return _jodoin_gierl(delta_r2, p_total)

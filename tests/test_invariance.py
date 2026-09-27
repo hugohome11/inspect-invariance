@@ -56,15 +56,39 @@ def test_unequal_loadings_break_metric_invariance():
     assert "metric invariance fails" in result.verdict
 
 
-def test_metric_model_is_more_constrained_than_configural():
+def test_the_difference_test_counts_the_actual_restrictions():
+    """df_diff must count restrictions, not differenced adjusted df.
+
+    Eight loadings are constrained equal and one factor variance is freed, so
+    seven parameters go. The adjusted degrees of freedom are rescaled per model
+    and their difference is not the number of restrictions: differencing them
+    gave 1 here, which is the bug this pins.
+    """
     equal = [0.7] * 8
     result = check_invariance({
         "en": matrix(generate(600, equal, seed=1), "en"),
         "hr": matrix(generate(600, equal, seed=2), "hr"),
     })
-    assert result.metric.df > result.configural.df
-    assert result.df_diff == 8, "one shared loading per item is freed in configural"
-    assert result.metric.chi2 >= result.configural.chi2 - 1e-6
+    assert result.df_diff == 7
+
+
+def test_adjusted_statistics_are_not_monotone_in_nesting():
+    """Documented, not a defect, and the reason the scaled difference test exists.
+
+    Under maximum likelihood a more constrained model cannot fit better, so
+    chi-square is monotone in nesting. A mean-and-variance adjusted statistic
+    rescales each model by its own correction factor, so the metric statistic can
+    come out below the configural one. Anyone tempted to add a monotonicity
+    assertion should read this first.
+    """
+    equal = [0.7] * 8
+    result = check_invariance({
+        "en": matrix(generate(600, equal, seed=1), "en"),
+        "hr": matrix(generate(600, equal, seed=2), "hr"),
+    })
+    # Both are finite and positive; their order is not guaranteed either way.
+    assert result.configural.chi2 > 0 and result.metric.chi2 > 0
+    assert result.df_diff > 0, "the metric model really is more constrained"
 
 
 def test_tetrachoric_recovers_a_known_correlation():

@@ -33,7 +33,13 @@ from inspect_ai.solver import multiple_choice
 
 __all__ = ["load_benchmark", "samples_for_language", "multilingual_task", "DEMO_BENCHMARK"]
 
-DEMO_BENCHMARK = Path(__file__).resolve().parents[2] / "data" / "demo" / "benchmark.json"
+DEMO_BENCHMARK = Path(__file__).resolve().parent / "data" / "demo" / "benchmark.json"
+"""Path to the bundled demo benchmark.
+
+It lives inside the package rather than beside it so that it ships in the wheel.
+Resolving it from the repository root worked from a checkout and silently broke
+under ``pip install``, where only ``src/inspect_invariance/`` is packaged.
+"""
 
 
 def load_benchmark(path: str | Path) -> dict[str, Any]:
