@@ -134,7 +134,15 @@ you give it something to find.
 ## Using it
 
 ```bash
-pip install -e ".[eval]"
+pip install -e .
+```
+
+You also need the client for whichever model you intend to run. `inspect_ai`
+treats these as optional, so installing the framework alone leaves `inspect eval`
+failing with a request for one:
+
+```bash
+pip install -e ".[openai]"     # or [anthropic], [google], [mistral], [groq]
 ```
 
 Run the benchmark in each language. Each sample carries `item_id` and `language`
@@ -157,7 +165,17 @@ inspect-invariance analyse ./logs --reference eng
 ```
 
 The default is all eighteen language versions of the 500-item test split, which
-is 9,000 samples. Narrow it for a cheaper run:
+is 9,000 samples.
+
+**Avoid a reasoning model here.** Measured on the full 9,000 samples: a
+non-reasoning model spent 1.39M input and 57k output tokens, while a reasoning
+model of the same family spent 1.38M input and 6.39M output, of which 6.02M were
+reasoning tokens. That is about 110 times the output volume for the same task and
+a 10x longer wall clock, and it buys little here, because the items are
+four-option multiple choice. Reasoning happens regardless of the `cot` setting, so
+the task cannot switch it off. Pick a small non-reasoning model.
+
+Narrow the run further if you want it cheaper still:
 
 ```bash
 inspect eval src/inspect_invariance/afrimmlu.py@afrimmlu   -T languages=eng,swa,yor,zul -T split=val --model openai/gpt-5-nano
