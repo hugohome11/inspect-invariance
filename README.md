@@ -237,8 +237,9 @@ whole range of item counts and sample sizes a real benchmark occupies. Measured 
 data simulated from exactly the fitted model, with no differential functioning
 anywhere, the current estimator rejects a correct model on **0 of 30 replications
 at 100, 200, 400 and 800 respondents**, and still detects a real loading
-difference on 26 of 30 at 200 and 30 of 30 at 400. The history is in
-`register-submission/findings-invariance-defect.md`.
+difference on 26 of 30 at 200 and 30 of 30 at 400. The full account, with the
+before-and-after numbers, is in the description of
+[pull request #1](https://github.com/hugohome11/inspect-invariance/pull/1).
 
 Two limits on it, both stated in the code. Metric invariance is decided by the
 scaled difference test rather than by a change in CFI or RMSEA: those cutoffs
