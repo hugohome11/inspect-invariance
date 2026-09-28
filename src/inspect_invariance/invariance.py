@@ -50,8 +50,8 @@ It replaces a normal-theory maximum-likelihood fit that treated the tetrachoric
 matrix as though it were a sample covariance matrix. That earlier statistic was
 not calibrated: it ran four- to sevenfold inflated and rejected correctly
 specified models across the whole range of item counts and sample sizes a real
-benchmark occupies. The history is in
-``register-submission/findings-invariance-defect.md``.
+benchmark occupies. The full account is in the description of pull request #1,
+https://github.com/hugohome11/inspect-invariance/pull/1.
 
 Two practical gains come with the change. Weighting by precision means a barely
 estimable correlation, which is what a skewed item pair in a small sample
