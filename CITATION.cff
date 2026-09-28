@@ -1,5 +1,9 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite both the software and the paper it implements."
+message: >-
+  If you use this software, please cite it together with the open data-and-code
+  deposit behind the method it implements, given as the preferred citation. The
+  accompanying paper is in moderation at MetaArXiv and will be added here once it
+  is public.
 title: inspect-invariance
 abstract: >-
   Measurement invariance and differential item functioning testing for
@@ -21,26 +25,32 @@ keywords:
   - multilingual evaluation
   - large language models
 references:
-  - type: article
+  - type: data
     title: >-
-      Ranks without resolution: how much of a multilingual benchmark's language
-      ordering is estimable?
+      Ranks without resolution: data and code for a measurement audit of a
+      multilingual LLM benchmark
     authors:
       - family-names: Kankaras
         given-names: Milos
         orcid: "https://orcid.org/0000-0002-3190-7751"
     year: 2026
+    publisher:
+      name: Zenodo
+    license: CC-BY-4.0
     doi: 10.5281/zenodo.22128037
     url: "https://doi.org/10.5281/zenodo.22128037"
 preferred-citation:
-  type: article
+  type: data
   title: >-
-    Ranks without resolution: how much of a multilingual benchmark's language
-    ordering is estimable?
+    Ranks without resolution: data and code for a measurement audit of a
+    multilingual LLM benchmark
   authors:
     - family-names: Kankaras
       given-names: Milos
       orcid: "https://orcid.org/0000-0002-3190-7751"
   year: 2026
+  publisher:
+    name: Zenodo
+  license: CC-BY-4.0
   doi: 10.5281/zenodo.22128037
   url: "https://doi.org/10.5281/zenodo.22128037"

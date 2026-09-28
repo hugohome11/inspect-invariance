@@ -8,13 +8,12 @@ whether it did, and names the items that broke.
 
 ## The evidence behind it
 
-This implements the method of a published measurement audit of a real
-multilingual suite: the same 22 models answering the same 3,080 items in eleven
-languages of Africa, from the HELM archive.
-
-> Kankaras, M. (2026). *Ranks without resolution: how much of a multilingual
-> benchmark's language ordering is estimable?*
-> [doi:10.5281/zenodo.22128037](https://doi.org/10.5281/zenodo.22128037)
+This implements the method of a measurement audit of a real multilingual suite:
+the same 22 models answering the same 3,080 items in eleven languages of Africa,
+from the HELM archive. The paper, *Ranks without resolution: How much of a
+multilingual benchmark's language ordering is estimable?*, is in moderation at
+MetaArXiv. Its data and code are already open in Kankaras (2026), a Zenodo deposit
+under CC-BY 4.0 that reproduces every number the paper reports.
 
 Three findings from that audit, which are what the tooling here is for:
 
@@ -29,8 +28,7 @@ Three findings from that audit, which are what the tooling here is for:
   items** after equating scale as well as location, against essentially none in a
   permutation null.
 
-The deposit behind that DOI reproduces every number in the paper. Note that the
-paper's own estimation is separate code and is not this package; the package
+The paper's own estimation is separate code and is not this package; the package
 implements the item-level half of the method for reuse on other benchmarks.
 
 ## The problem
@@ -48,10 +46,10 @@ assessment has been dealing with it for forty years, because it is the failure
 mode that shows up whenever an instrument crosses a language boundary, and it
 shows up often. Translated items shift in difficulty when an idiom has no
 equivalent, when a distractor becomes implausible, when a quantifier is rendered
-loosely, or when a term is more familiar in one culture than another. The
-published analysis of PISA 2009 found that a widely used international benchmark
-was not fully comparable across the countries that were nonetheless being ranked
-on it.
+loosely, or when a term is more familiar in one culture than another. An analysis
+of PISA 2009 found that a widely used international benchmark was not fully
+comparable across the countries that were nonetheless being ranked on it
+(Kankaras & Moors, 2014).
 
 The regulatory version of the problem is sharper. From August 2026 the EU AI
 Office can act on evidence of harmful manipulation, and the AI Act leaves the
@@ -73,10 +71,11 @@ metric invariance fails, the forms share a dimension but not a scale, so
 differences between them are not on a common metric.
 
 **Which individual items behave differently?** Every item is tested for
-differential item functioning by two procedures: Mantel-Haenszel with the ETS
-delta scale and the A/B/C classification used for operational item review, and
-logistic regression with the Nagelkerke effect size and the Jodoin and Gierl
-classification. Both condition on total score, so an item is flagged when one
+differential item functioning by two procedures: the Mantel-Haenszel procedure
+(Holland & Thayer, 1988/2013), with the ETS delta scale and the A/B/C
+classification used for operational item review, and logistic regression
+(Swaminathan & Rogers, 1990), with the Nagelkerke effect size and the
+classification of Jodoin and Gierl (2001). Both condition on total score, so an item is flagged when one
 language group gets it wrong *relative to their overall performance*, not merely
 when they get it wrong.
 
@@ -242,10 +241,11 @@ before-and-after numbers, is in the description of
 [pull request #1](https://github.com/hugohome11/inspect-invariance/pull/1).
 
 Two limits on it, both stated in the code. Metric invariance is decided by the
-scaled difference test rather than by a change in CFI or RMSEA: those cutoffs
-assume nested models share their degrees of freedom, which a mean-and-variance
-adjusted statistic does not, and on correct models the delta-RMSEA rule rejected 8
-of 30 where the difference test rejected 0. And the corrected statistic needs the
+scaled difference test rather than by a change in CFI or RMSEA. The usual cutoffs
+for those changes were proposed from simulation studies (Cheung & Rensvold, 2002;
+Chen, 2007). They assume nested models share their degrees of freedom,
+which a mean-and-variance adjusted statistic does not, and on correct models the
+delta-RMSEA rule rejected 8 of 30 where the difference test rejected 0. And the corrected statistic needs the
 joint covariance of every residual correlation, which caps the problem size at 60
 items and 4,000 stacked language-by-correlation residuals. About 20 items across
 18 languages fits, as does 60 items across 2. Above that it refuses and says so,
@@ -280,25 +280,34 @@ step this tooling exists to direct rather than to replace.
 
 ## References
 
-Holland, P. W., and Thayer, D. T. (1988). Differential item performance and the
-Mantel-Haenszel procedure. In H. Wainer and H. I. Braun (eds.), *Test Validity*.
-
-Swaminathan, H., and Rogers, H. J. (1990). Detecting differential item
-functioning using logistic regression procedures. *Journal of Educational
-Measurement*, 27(4).
-
-Cheung, G. W., and Rensvold, R. B. (2002). Evaluating goodness-of-fit indexes for
-testing measurement invariance. *Structural Equation Modeling*, 9(2).
-
-Jodoin, M. G., and Gierl, M. J. (2001). Evaluating Type I error and power rates
-using an effect size measure with the logistic regression procedure for DIF
-detection. *Applied Measurement in Education*, 14(4).
-
 Chen, F. F. (2007). Sensitivity of goodness of fit indexes to lack of measurement
-invariance. *Structural Equation Modeling*, 14(3).
+invariance. *Structural Equation Modeling: A Multidisciplinary Journal*, *14*(3),
+464-504. https://doi.org/10.1080/10705510701301834
 
-Kankaras, M., and Moors, G. (2014). Analysis of cross-cultural comparability of
-PISA 2009 scores. *Journal of Cross-Cultural Psychology*, 45(3), 381-399.
+Cheung, G. W., & Rensvold, R. B. (2002). Evaluating goodness-of-fit indexes for
+testing measurement invariance. *Structural Equation Modeling: A Multidisciplinary
+Journal*, *9*(2), 233-255. https://doi.org/10.1207/s15328007sem0902_5
+
+Holland, P. W., & Thayer, D. T. (2013). Differential item performance and the
+Mantel-Haenszel procedure. In H. Wainer & H. I. Braun (Eds.), *Test validity*
+(pp. 149-166). Routledge. (Original work published 1988)
+
+Jodoin, M. G., & Gierl, M. J. (2001). Evaluating Type I error and power rates
+using an effect size measure with the logistic regression procedure for DIF
+detection. *Applied Measurement in Education*, *14*(4), 329-349.
+https://doi.org/10.1207/s15324818ame1404_2
+
+Kankaras, M. (2026). *Ranks without resolution: Data and code for a measurement
+audit of a multilingual LLM benchmark* [Data set]. Zenodo.
+https://doi.org/10.5281/zenodo.22128037
+
+Kankaras, M., & Moors, G. (2014). Analysis of cross-cultural comparability of
+PISA 2009 scores. *Journal of Cross-Cultural Psychology*, *45*(3), 381-399.
+https://doi.org/10.1177/0022022113511297
+
+Swaminathan, H., & Rogers, H. J. (1990). Detecting differential item functioning
+using logistic regression procedures. *Journal of Educational Measurement*,
+*27*(4), 361-370. https://doi.org/10.1111/j.1745-3984.1990.tb00754.x
 
 ## Licence
 
